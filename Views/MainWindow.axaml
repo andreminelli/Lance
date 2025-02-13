@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Lance.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+        x:Class="Lance.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Lance">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ShowGridLines="True" ColumnDefinitions="200, 400, *" RowDefinitions="100, *">
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="../Assets/Images/lance.png" Width="70"></Image>
+            <TextBlock VerticalAlignment="Center" Text="Lance!" FontFamily="" FontWeight="Bold" />
+        </StackPanel>
+        
+        <TabControl Grid.Row="1" Grid.Column="1">
+            <TabItem Header="Headers">
+                
+            </TabItem>
+            <TabItem Header="Authorization"></TabItem>
+            <TabItem Header="Body"></TabItem>
+        </TabControl>
+    </Grid>
+
+</Window>
