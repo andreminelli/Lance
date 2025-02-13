@@ -15,19 +15,57 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid ShowGridLines="True" ColumnDefinitions="200, 400, *" RowDefinitions="100, *">
+    <Grid ShowGridLines="True" ColumnDefinitions="300, 400, *" RowDefinitions="100, *">
+        <!-- LOGO -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image Source="../Assets/Images/lance.png" Width="70"></Image>
             <TextBlock VerticalAlignment="Center" Text="Lance!" FontFamily="" FontWeight="Bold" />
         </StackPanel>
         
+        <!-- FILE SELECTION -->
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <ListBox Name="FileSelectionListBox" SelectionMode="Toggle">
+                <ListBoxItem>POST Request.json</ListBoxItem>
+                <ListBoxItem>GET Request.json</ListBoxItem>
+                <ListBoxItem>PUT_Request.json</ListBoxItem>
+            </ListBox>
+        </StackPanel>
+        
+        <!-- HEADERS, AUTHORIZATION AND BODY -->
         <TabControl Grid.Row="1" Grid.Column="1">
-            <TabItem Header="Headers">
-                
+            <TabItem Header="Headers"><TextBlock>TODO: LOGIC TO ADD AND REMOVE HEADERS IN THE UI</TextBlock></TabItem>
+            <TabItem Header="Authorization" Name="AuthorizationTabItem">
+                <StackPanel VerticalAlignment="Top" Margin="20">
+                    <TextBlock Name="AuthorizationTextBlock" HorizontalAlignment="Center">Authorization Header:</TextBlock>
+                    <ToggleSwitch Name="AuthorizationBearerToggleSwitch" HorizontalAlignment="Center">Bearer</ToggleSwitch>
+                    <TextBox Name="AuthorizationTextBox" Watermark="Ex.: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzd..."></TextBox>
+                </StackPanel>
             </TabItem>
-            <TabItem Header="Authorization"></TabItem>
             <TabItem Header="Body"></TabItem>
         </TabControl>
+        
+        <!-- HTTP METHOD AND URI -->
+        <Grid Grid.Row="0" Grid.Column="2" Margin="20" ColumnDefinitions="150, *, 100">
+            <ComboBox Grid.Column="0" VerticalAlignment="Center" Margin="5" PlaceholderText="METHOD">
+                <ComboBoxItem>GET</ComboBoxItem>
+                <ComboBoxItem>POST</ComboBoxItem>
+                <ComboBoxItem>PUT</ComboBoxItem>
+                <ComboBoxItem>PATCH</ComboBoxItem>
+                <ComboBoxItem>DELETE</ComboBoxItem>
+                <ComboBoxItem>OPTIONS</ComboBoxItem>
+            </ComboBox>
+            <TextBox Grid.Column="1" Watermark="Insert your URI here" Width="400" HorizontalAlignment="Left" Margin="5"></TextBox>
+            <Button Grid.Column="2" >Go</Button>
+        </Grid>
+        
+        <Panel Grid.Row="1" Grid.Column="2">
+            <TextBox IsReadOnly="True" TextWrapping="Wrap" Margin="10" BorderBrush="SlateGray" BorderThickness="5">
+                {
+                    "status": 200,
+                    "message": "ok"
+                }
+            </TextBox>
+        </Panel>
     </Grid>
 
 </Window>
