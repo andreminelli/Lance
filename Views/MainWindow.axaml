@@ -33,22 +33,32 @@
         
         <!-- HEADERS, AUTHORIZATION AND BODY -->
         <TabControl Grid.Row="1" Grid.Column="1">
-            <TabItem Header="Headers"><TextBlock>TODO: LOGIC TO ADD AND REMOVE HEADERS IN THE UI</TextBlock></TabItem>
-            <TabItem Header="Authorization" Name="AuthorizationTabItem">
+            <TabItem Header="Headers" FontSize="15"><TextBlock>TODO: LOGIC TO ADD AND REMOVE HEADERS IN THE UI</TextBlock></TabItem>
+            <TabItem Header="Authorization" Name="AuthorizationTabItem" FontSize="15">
                 <StackPanel VerticalAlignment="Top" Margin="20">
                     <TextBlock Name="AuthorizationTextBlock" HorizontalAlignment="Center">Authorization Header:</TextBlock>
                     <ToggleSwitch Name="AuthorizationBearerToggleSwitch" HorizontalAlignment="Center">Bearer</ToggleSwitch>
                     <TextBox Name="AuthorizationTextBox" Watermark="Ex.: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzd..."></TextBox>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="Body"></TabItem>
+            <TabItem Header="Body" FontSize="15">
+                <Grid ColumnDefinitions="*" RowDefinitions="*">
+                    <TextBox
+                        Watermark="Text body content here"
+                        TextWrapping="Wrap"
+                        PastingFromClipboard="TextBox_OnPastingFromClipboard"
+                        />
+                </Grid>
+            </TabItem>
         </TabControl>
         
         <!-- HTTP METHOD AND URI -->
-        <Grid Grid.Row="0" Grid.Column="2" Margin="20" ColumnDefinitions="110, 350, 100">
+        <Border Grid.Row="0" Grid.Column="2" BorderThickness="2" BorderBrush="Red">
+        <Grid Grid.Row="0" Grid.Column="2" Margin="20" ColumnDefinitions="100, *, 100">
             <ComboBox Grid.Column="0"
                       SelectedIndex="0"
-                      VerticalAlignment="Center">
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Left">
                 <ComboBoxItem>GET</ComboBoxItem>
                 <ComboBoxItem>POST</ComboBoxItem>
                 <ComboBoxItem>PUT</ComboBoxItem>
@@ -58,17 +68,20 @@
             </ComboBox>
             <TextBox Grid.Column="1" 
                      Watermark="Insert your URI here" 
-                     Margin="10"></TextBox>
+                     Margin="10"
+                     MinWidth="300"></TextBox>
             <Button Grid.Column="2" 
-                    Width="60" 
+                    MinWidth="100" 
+                    Margin="10"
                     HorizontalContentAlignment="Center" 
                     HorizontalAlignment="Center">Go</Button>
         </Grid>
+        </Border>
         
         <!-- RESPONSE PANEL -->
-        <StackPanel Grid.Row="1" Grid.Column="2">
-            <Panel Margin="10">
-                <TextBlock HorizontalAlignment="Left">70ms</TextBlock>
+        <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="*" RowDefinitions="40, *">
+            <Panel Grid.Column="0" Grid.Row="0" Margin="10">
+                <TextBlock HorizontalAlignment="Left">70 ms</TextBlock>
                 <TextBlock
                     HorizontalAlignment="Right"
                     Background="PaleGreen" 
@@ -76,12 +89,17 @@
                     200 - OK
                 </TextBlock>
             </Panel>
-            <TextBox IsReadOnly="True"
-                     TextWrapping="Wrap"
-                     Margin="15"
-                     Name="ResponseContentTextBox">
-            </TextBox>
-        </StackPanel>
+            <TabControl Grid.Row="1" Grid.Column="0">
+                <TabItem Header="Response Content" FontSize="15">
+                    <TextBox IsReadOnly="True"
+                             Margin="15"
+                             Name="ResponseContentTextBox">
+                    </TextBox>
+                </TabItem>
+                <TabItem Header="Response Headers" FontSize="15"></TabItem>
+            </TabControl>
+
+        </Grid>
     </Grid>
 
 </Window>
