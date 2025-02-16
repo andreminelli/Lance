@@ -47,18 +47,19 @@
                         Watermark="Text body content here"
                         TextWrapping="Wrap"
                         PastingFromClipboard="TextBox_OnPastingFromClipboard"
+                        Text="{Binding Body}"
                         />
                 </Grid>
             </TabItem>
         </TabControl>
         
         <!-- HTTP METHOD AND URI -->
-        <Border Grid.Row="0" Grid.Column="2" BorderThickness="2" BorderBrush="Red">
         <Grid Grid.Row="0" Grid.Column="2" Margin="20" ColumnDefinitions="100, *, 100">
             <ComboBox Grid.Column="0"
-                      SelectedIndex="0"
+                      SelectedIndex="{Binding SelectedMethodIndex}"
                       VerticalAlignment="Center"
-                      HorizontalAlignment="Left">
+                      HorizontalAlignment="Left"
+                      Name="HttpMethodComboBox">
                 <ComboBoxItem>GET</ComboBoxItem>
                 <ComboBoxItem>POST</ComboBoxItem>
                 <ComboBoxItem>PUT</ComboBoxItem>
@@ -67,34 +68,45 @@
                 <ComboBoxItem>OPTIONS</ComboBoxItem>
             </ComboBox>
             <TextBox Grid.Column="1" 
-                     Watermark="Insert your URI here" 
+                     Watermark="Insert your URL here" 
                      Margin="10"
-                     MinWidth="300"></TextBox>
+                     MinWidth="300"
+                     Name="UrlTextBox"
+                     Text="{Binding Url}"></TextBox>
             <Button Grid.Column="2" 
                     MinWidth="100" 
                     Margin="10"
                     HorizontalContentAlignment="Center" 
-                    HorizontalAlignment="Center">Go</Button>
+                    HorizontalAlignment="Center"
+                    Name="MakeRequestButton"
+                    Command="{Binding MakeRequestCommand}">Go</Button>
         </Grid>
-        </Border>
         
-        <!-- RESPONSE PANEL -->
-        <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="*" RowDefinitions="40, *">
-            <Panel Grid.Column="0" Grid.Row="0" Margin="10">
-                <TextBlock HorizontalAlignment="Left">70 ms</TextBlock>
+        <!-- RESPONSE -->
+        <Grid 
+            Grid.Row="1"
+            Grid.Column="2" 
+            ColumnDefinitions="*" 
+            RowDefinitions="40, *" 
+            Name="ResponsePanel" 
+            IsVisible="{Binding RequestCompleted}">
+            <Panel 
+                Grid.Column="0" 
+                Grid.Row="0" 
+                Margin="10">
+                <TextBlock HorizontalAlignment="Left" Text="{Binding FormattedRequestTime}" />
                 <TextBlock
                     HorizontalAlignment="Right"
                     Background="PaleGreen" 
-                    Foreground="Black">
-                    200 - OK
-                </TextBlock>
+                    Foreground="Black" 
+                    Text="{Binding FormattedStatusCode}"/>
             </Panel>
             <TabControl Grid.Row="1" Grid.Column="0">
                 <TabItem Header="Response Content" FontSize="15">
                     <TextBox IsReadOnly="True"
                              Margin="15"
-                             Name="ResponseContentTextBox">
-                    </TextBox>
+                             Name="ResponseContentTextBox"
+                             Text="{Binding ResponseContent}" />
                 </TabItem>
                 <TabItem Header="Response Headers" FontSize="15"></TabItem>
             </TabControl>

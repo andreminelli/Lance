@@ -13,18 +13,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        FillResponseTextBoxWithJsonArray();
     }
-
-    private void FillResponseTextBoxWithJsonArray()
-    {
-        IEnumerable<Login> logins = Enumerable.Range(0, 30).Select(_ => GetLoginObject());
-
-        ResponseContentTextBox.Text =
-            JsonSerializer.Serialize(logins, new JsonSerializerOptions { WriteIndented = true });
-    }
-
-    private static Login GetLoginObject() => new("login", "password");
 
     private void TextBox_OnPastingFromClipboard(object? sender, RoutedEventArgs e)
     {
