@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 
@@ -37,6 +35,15 @@ public partial class MainWindow : Window
             return;
         
         textBox.Text = data.Result;
+    }
+
+    private void UrlTextBox_OnKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) 
+            return;
+        
+        if (MakeRequestButton.Command?.CanExecute(null) == true)
+            MakeRequestButton.Command.Execute(null);
     }
 }
 

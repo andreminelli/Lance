@@ -72,7 +72,8 @@
                      Margin="10"
                      MinWidth="300"
                      Name="UrlTextBox"
-                     Text="{Binding Url}"></TextBox>
+                     Text="{Binding Url}" 
+                     KeyDown="UrlTextBox_OnKeyDown"/>
             <Button Grid.Column="2" 
                     MinWidth="100" 
                     Margin="10"

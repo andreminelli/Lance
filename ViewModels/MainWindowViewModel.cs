@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -11,9 +13,13 @@ namespace Lance.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty] private string _url = string.Empty;
+    [ObservableProperty] 
+    [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
+    private string _url = string.Empty;
 
-    [ObservableProperty] private int _selectedMethodIndex;
+    [ObservableProperty] 
+    [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
+    private int _selectedMethodIndex;
 
     [ObservableProperty] private string? _body;
 
@@ -24,17 +30,15 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string? _formattedStatusCode;
 
     [ObservableProperty] private string? _responseContent;
-
+    
     private readonly HttpMethod[] _indexToHttpMethodArray =
         [HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Options];
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanMakeRequest))]
     private async Task MakeRequest()
     {
         using HttpClient client = new();
-
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
+        
         Stopwatch stopwatch = Stopwatch.StartNew();
         HttpResponseMessage response =
             await client.SendAsync(new HttpRequestMessage(_indexToHttpMethodArray[SelectedMethodIndex], Url));
@@ -43,18 +47,31 @@ public partial class MainWindowViewModel : ViewModelBase
         await UpdateResponseData(response, stopwatch.Elapsed);
     }
 
+    private bool CanMakeRequest() =>
+        !string.IsNullOrEmpty(Url) && !string.IsNullOrWhiteSpace(Url) && SelectedMethodIndex > -1;
+
     private async Task UpdateResponseData(HttpResponseMessage response, TimeSpan requestDuration)
     {
         Task<string> stringResponseContent = response.Content.ReadAsStringAsync();
-
-        FormattedRequestTime = $"{requestDuration.TotalMilliseconds} ms";
+        
+        FormattedRequestTime = $"{Math.Round(requestDuration.TotalMilliseconds)} ms";
 
         FormattedStatusCode = $"{(int)response.StatusCode} - {response.ReasonPhrase}";
 
-        object? obj = JsonSerializer.Deserialize<object?>(await stringResponseContent);
+        if (response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string>? contentTypes))
+        {
+            if (contentTypes.Any(a => a.Contains("application/json")))
+            {
+                object? obj = JsonSerializer.Deserialize<object?>(await stringResponseContent);
 
-        if (obj is not null)
-            ResponseContent = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+                if (obj is not null)
+                    ResponseContent = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            }
+        }
+        else
+        {
+            ResponseContent = await stringResponseContent;
+        }
 
         RequestCompleted = true;
     }
