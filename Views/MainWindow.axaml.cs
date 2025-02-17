@@ -33,7 +33,7 @@ public partial class MainWindow : Window
 
         if (string.IsNullOrEmpty(data.Result) || string.IsNullOrWhiteSpace(data.Result))
             return;
-        
+
         textBox.Text = data.Result;
     }
 

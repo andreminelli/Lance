@@ -58,6 +58,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
         FormattedStatusCode = $"{(int)response.StatusCode} - {response.ReasonPhrase}";
 
+        await SetResponseContent(response, stringResponseContent);
+
+        RequestCompleted = true;
+    }
+
+    private async Task SetResponseContent(HttpResponseMessage response, Task<string> stringResponseContent)
+    {
         if (response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string>? contentTypes))
         {
             if (contentTypes.Any(a => a.Contains("application/json")))
@@ -65,14 +72,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 object? obj = JsonSerializer.Deserialize<object?>(await stringResponseContent);
 
                 if (obj is not null)
+                {
                     ResponseContent = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+                    return;
+                }
             }
         }
-        else
-        {
-            ResponseContent = await stringResponseContent;
-        }
-
-        RequestCompleted = true;
+        
+        ResponseContent = await stringResponseContent;
     }
 }

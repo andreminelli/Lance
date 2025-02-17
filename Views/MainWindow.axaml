@@ -19,7 +19,6 @@
         <!-- LOGO -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image Source="../Assets/Images/lance.png" Width="70"></Image>
-            <TextBlock VerticalAlignment="Center" Text="Lance!" FontFamily="" FontWeight="Bold" />
         </StackPanel>
         
         <!-- FILE SELECTION -->
@@ -30,6 +29,12 @@
                 <ListBoxItem>PUT_Request.json</ListBoxItem>
             </ListBox>
         </StackPanel>
+        
+        <!-- GENERAL ACTIONS -->
+        <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" ColumnDefinitions="150, *, 150">
+            <Button Grid.Column="0" Content="Export" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Button Grid.Column="2" Content="Save" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
         
         <!-- HEADERS, AUTHORIZATION AND BODY -->
         <TabControl Grid.Row="1" Grid.Column="1">
@@ -106,6 +111,7 @@
                 <TabItem Header="Response Content" FontSize="15">
                     <TextBox IsReadOnly="True"
                              Margin="15"
+                             TextWrapping="Wrap"
                              Name="ResponseContentTextBox"
                              Text="{Binding ResponseContent}" />
                 </TabItem>
