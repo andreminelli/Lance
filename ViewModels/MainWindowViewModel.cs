@@ -1,13 +1,13 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.Input;
 
 namespace Lance.ViewModels;
 
@@ -17,9 +17,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
     private string _url = string.Empty;
 
-    [ObservableProperty] 
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
-    private int _selectedMethodIndex;
+    private HttpMethod? _selectedMethod;
 
     [ObservableProperty] private string? _body;
 
@@ -31,24 +31,25 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _responseContent;
     
-    private readonly HttpMethod[] _indexToHttpMethodArray =
+    public HttpMethod[] HttpMethods { get; } =
         [HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Options];
 
     [RelayCommand(CanExecute = nameof(CanMakeRequest))]
     private async Task MakeRequest()
     {
         using HttpClient client = new();
-        
+
         Stopwatch stopwatch = Stopwatch.StartNew();
         HttpResponseMessage response =
-            await client.SendAsync(new HttpRequestMessage(_indexToHttpMethodArray[SelectedMethodIndex], Url));
+            await client.SendAsync(new HttpRequestMessage(SelectedMethod, Url));
         stopwatch.Stop();
 
         await UpdateResponseData(response, stopwatch.Elapsed);
     }
 
+    [MemberNotNullWhen(true, nameof(SelectedMethod))]
     private bool CanMakeRequest() =>
-        !string.IsNullOrEmpty(Url) && !string.IsNullOrWhiteSpace(Url) && SelectedMethodIndex > -1;
+        Uri.TryCreate(Url, UriKind.Absolute, out var _) && SelectedMethod is not null;
 
     private async Task UpdateResponseData(HttpResponseMessage response, TimeSpan requestDuration)
     {
