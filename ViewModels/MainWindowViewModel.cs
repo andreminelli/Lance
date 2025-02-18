@@ -19,7 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
-    private HttpMethod? _selectedMethod;
+    private HttpMethod? _selectedMethod = HttpMethod.Get;
 
     [ObservableProperty] private string? _body;
 

@@ -73,7 +73,7 @@
                       Name="HttpMethodComboBox">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding, Converter={StaticResource HttpMethodConverter}}" />
+						<TextBlock Text="{Binding Converter={StaticResource HttpMethodConverter}}" />
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
             </ComboBox>
