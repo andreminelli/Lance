@@ -55,9 +55,8 @@ public partial class MainWindowViewModel : ViewModelBase
         await UpdateResponseData(response, stopwatch.Elapsed);
     }
 
-    [MemberNotNullWhen(true, nameof(SelectedMethod))]
     private bool CanMakeRequest() =>
-        Uri.TryCreate(Url, UriKind.Absolute, out Uri _) && SelectedMethod is not null;
+        Uri.TryCreate(Url, UriKind.Absolute, out Uri _);
 
     private async Task UpdateResponseData(HttpResponseMessage response, TimeSpan requestDuration)
     {
