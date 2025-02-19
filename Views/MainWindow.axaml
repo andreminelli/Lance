@@ -52,14 +52,15 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="Body" FontSize="15">
-                <Grid ColumnDefinitions="*" RowDefinitions="*">
+                <Panel>
                     <TextBox
                         Watermark="Text body content here"
                         TextWrapping="Wrap"
-                        PastingFromClipboard="TextBox_OnPastingFromClipboard"
+                        AcceptsReturn="True"
+                        AcceptsTab="True"
                         Text="{Binding Body}"
                         />
-                </Grid>
+                </Panel>
             </TabItem>
         </TabControl>
         

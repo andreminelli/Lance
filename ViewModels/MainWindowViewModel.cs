@@ -6,20 +6,21 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Lance.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty] 
-    [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
     private string _url = string.Empty;
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
-    private HttpMethod? _selectedMethod = HttpMethod.Get;
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(MakeRequestCommand))]
+    private HttpMethod _selectedMethod = HttpMethod.Get;
 
     [ObservableProperty] private string? _body;
 
@@ -30,7 +31,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string? _formattedStatusCode;
 
     [ObservableProperty] private string? _responseContent;
-    
+
     public HttpMethod[] HttpMethods { get; } =
         [HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Options];
 
@@ -38,23 +39,30 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task MakeRequest()
     {
         using HttpClient client = new();
+        HttpRequestMessage request = new(SelectedMethod, Url);
+        Stopwatch stopwatch = new();
+        
+        if (!string.IsNullOrEmpty(Body))
+        {
+            request.Content = new StringContent(Body);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        }
 
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        HttpResponseMessage response =
-            await client.SendAsync(new HttpRequestMessage(SelectedMethod, Url));
+        stopwatch.Start();
+        HttpResponseMessage response = await client.SendAsync(request);
         stopwatch.Stop();
-
+        
         await UpdateResponseData(response, stopwatch.Elapsed);
     }
 
     [MemberNotNullWhen(true, nameof(SelectedMethod))]
     private bool CanMakeRequest() =>
-        Uri.TryCreate(Url, UriKind.Absolute, out var _) && SelectedMethod is not null;
+        Uri.TryCreate(Url, UriKind.Absolute, out Uri _) && SelectedMethod is not null;
 
     private async Task UpdateResponseData(HttpResponseMessage response, TimeSpan requestDuration)
     {
         Task<string> stringResponseContent = response.Content.ReadAsStringAsync();
-        
+
         FormattedRequestTime = $"{Math.Round(requestDuration.TotalMilliseconds)} ms";
 
         FormattedStatusCode = $"{(int)response.StatusCode} - {response.ReasonPhrase}";
@@ -79,7 +87,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
             }
         }
-        
+
         ResponseContent = await stringResponseContent;
     }
 }
