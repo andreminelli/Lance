@@ -3,29 +3,31 @@
         xmlns:vm="using:Lance.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:localConverters="clr-namespace:Lance.Converters;assembly=Lance"
+        xmlns:localConverters="clr-namespace:Lance.Converters;assembly=Lance"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="Lance.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Lance">
-	
-	<Window.Resources>
-		<localConverters:HttpMethodConverter x:Key="HttpMethodConverter"/>
-	</Window.Resources>
-	
+
+    <Window.Resources>
+        <localConverters:HttpMethodConverter x:Key="HttpMethodConverter" />
+        <localConverters:HeaderKeyConverter x:Key="HeaderKeyConverter" />
+        <localConverters:HeaderValueConverter x:Key="HeaderValueConverter" />
+    </Window.Resources>
+
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Grid ShowGridLines="True" ColumnDefinitions="300, 400, *" RowDefinitions="100, *">
+    <Grid ShowGridLines="True" ColumnDefinitions="300, 450, *" RowDefinitions="100, *">
         <!-- LOGO -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image Source="../Assets/Images/lance.png" Width="70"></Image>
         </StackPanel>
-        
+
         <!-- FILE SELECTION -->
         <StackPanel Grid.Row="1" Grid.Column="0">
             <ListBox Name="FileSelectionListBox" SelectionMode="Toggle">
@@ -34,22 +36,33 @@
                 <ListBoxItem>PUT_Request.json</ListBoxItem>
             </ListBox>
         </StackPanel>
-        
+
         <!-- GENERAL ACTIONS -->
         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" ColumnDefinitions="150, *, 150">
             <Button Grid.Column="0" Content="Export" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <Button Grid.Column="2" Content="Save" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </Grid>
-        
+
         <!-- HEADERS, AUTHORIZATION AND BODY -->
         <TabControl Grid.Row="1" Grid.Column="1">
-            <TabItem Header="Headers" FontSize="15"><TextBlock>TODO: LOGIC TO ADD AND REMOVE HEADERS IN THE UI</TextBlock></TabItem>
-            <TabItem Header="Authorization" Name="AuthorizationTabItem" FontSize="15">
-                <StackPanel VerticalAlignment="Top" Margin="20">
-                    <TextBlock Name="AuthorizationTextBlock" HorizontalAlignment="Center">Authorization Header:</TextBlock>
-                    <ToggleSwitch Name="AuthorizationBearerToggleSwitch" HorizontalAlignment="Center">Bearer</ToggleSwitch>
-                    <TextBox Name="AuthorizationTextBox" Watermark="Ex.: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzd..."></TextBox>
-                </StackPanel>
+            <TabItem Header="Headers" FontSize="15">
+                <Grid RowDefinitions="Auto, *">
+                    <ListBox Grid.Row="0" ItemsSource="{Binding RequestHeaders}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*, Auto, Auto">
+                                    <TextBox VerticalAlignment="Center" Margin="5"
+                                               Text="{Binding Converter={StaticResource HeaderKeyConverter}}" />
+                                    <TextBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Width="200"
+                                             Text="{Binding Converter={StaticResource HeaderValueConverter}}" />
+                                    <Button Grid.Column="2" Margin="5" Content="X" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5"
+                            Content="Add Header" />
+                </Grid>
             </TabItem>
             <TabItem Header="Body" FontSize="15">
                 <Panel>
@@ -58,60 +71,60 @@
                         TextWrapping="Wrap"
                         AcceptsReturn="True"
                         AcceptsTab="True"
-                        Text="{Binding Body}"
-                        />
+                        Text="{Binding Body}" />
                 </Panel>
             </TabItem>
         </TabControl>
-        
+
         <!-- HTTP METHOD AND URI -->
         <Grid Grid.Row="0" Grid.Column="2" Margin="20" ColumnDefinitions="100, *, 100">
             <ComboBox Grid.Column="0"
-					  ItemsSource="{Binding HttpMethods}"
-					  SelectedValue="{Binding SelectedMethod}"
+                      ItemsSource="{Binding HttpMethods}"
+                      SelectedValue="{Binding SelectedMethod}"
                       VerticalAlignment="Center"
                       HorizontalAlignment="Left"
                       Name="HttpMethodComboBox">
-				<ComboBox.ItemTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding Converter={StaticResource HttpMethodConverter}}" />
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource HttpMethodConverter}}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBox Grid.Column="1" 
-                     Watermark="Insert your URL here" 
+            <TextBox Grid.Column="1"
+                     Watermark="Insert your URL here"
                      Margin="10"
                      MinWidth="300"
                      Name="UrlTextBox"
-                     Text="{Binding Url}" 
-                     KeyDown="UrlTextBox_OnKeyDown"/>
-            <Button Grid.Column="2" 
-                    MinWidth="100" 
+                     Text="{Binding Url}"
+                     KeyDown="UrlTextBox_OnKeyDown" />
+            <Button Grid.Column="2"
+                    MinWidth="100"
                     Margin="10"
-                    HorizontalContentAlignment="Center" 
+                    HorizontalContentAlignment="Center"
                     HorizontalAlignment="Center"
                     Name="MakeRequestButton"
-                    Command="{Binding MakeRequestCommand}">Go</Button>
+                    Content="Go"
+                    Command="{Binding MakeRequestCommand}" />
         </Grid>
-        
+
         <!-- RESPONSE -->
-        <Grid 
+        <Grid
             Grid.Row="1"
-            Grid.Column="2" 
-            ColumnDefinitions="*" 
-            RowDefinitions="40, *" 
-            Name="ResponsePanel" 
+            Grid.Column="2"
+            ColumnDefinitions="*"
+            RowDefinitions="40, *"
+            Name="ResponsePanel"
             IsVisible="{Binding RequestCompleted}">
-            <Panel 
-                Grid.Column="0" 
-                Grid.Row="0" 
+            <Panel
+                Grid.Column="0"
+                Grid.Row="0"
                 Margin="10">
                 <TextBlock HorizontalAlignment="Left" Text="{Binding FormattedRequestTime}" />
                 <TextBlock
                     HorizontalAlignment="Right"
-                    Background="PaleGreen" 
-                    Foreground="Black" 
-                    Text="{Binding FormattedStatusCode}"/>
+                    Background="PaleGreen"
+                    Foreground="Black"
+                    Text="{Binding FormattedStatusCode}" />
             </Panel>
             <TabControl Grid.Row="1" Grid.Column="0">
                 <TabItem Header="Response Content" FontSize="15">
@@ -121,6 +134,7 @@
                              Name="ResponseContentTextBox"
                              Text="{Binding ResponseContent}" />
                 </TabItem>
+                <TabItem Header="Request Headers" FontSize="15"></TabItem>
                 <TabItem Header="Response Headers" FontSize="15"></TabItem>
             </TabControl>
 

@@ -2,14 +2,12 @@
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Lance.ViewModels;
@@ -32,6 +30,15 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _responseContent;
 
+    [ObservableProperty] private ObservableCollection<RequestHeader>? _requestHeaders =
+    [
+        new("Accept", "application/json"),
+        new ("Content-Type", "application/json"),
+        new ("Authorization", "Basic"),
+    ];
+
+    [ObservableProperty] private Dictionary<string, string>? _responseHeaders;
+
     public HttpMethod[] HttpMethods { get; } =
         [HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Options];
 
@@ -41,7 +48,7 @@ public partial class MainWindowViewModel : ViewModelBase
         using HttpClient client = new();
         HttpRequestMessage request = new(SelectedMethod, Url);
         Stopwatch stopwatch = new();
-        
+
         if (!string.IsNullOrEmpty(Body))
         {
             request.Content = new StringContent(Body);
@@ -51,7 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
         stopwatch.Start();
         HttpResponseMessage response = await client.SendAsync(request);
         stopwatch.Stop();
-        
+
         await UpdateResponseData(response, stopwatch.Elapsed);
     }
 
@@ -90,3 +97,5 @@ public partial class MainWindowViewModel : ViewModelBase
         ResponseContent = await stringResponseContent;
     }
 }
+
+public record RequestHeader(string Key, string Value);

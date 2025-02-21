@@ -10,7 +10,7 @@ namespace Lance.Converters
     {
         public static readonly HttpMethodConverter Instance = new();
 
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is HttpMethod method && targetType.IsAssignableTo(typeof(string)))
             {
@@ -20,7 +20,7 @@ namespace Lance.Converters
             return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
         }
 
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is string methodName && targetType.IsAssignableTo(typeof(HttpMethod)))
             {
