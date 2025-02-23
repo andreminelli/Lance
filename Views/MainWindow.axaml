@@ -12,8 +12,6 @@
 
     <Window.Resources>
         <localConverters:HttpMethodConverter x:Key="HttpMethodConverter" />
-        <localConverters:HeaderKeyConverter x:Key="HeaderKeyConverter" />
-        <localConverters:HeaderValueConverter x:Key="HeaderValueConverter" />
     </Window.Resources>
 
     <Design.DataContext>
@@ -46,22 +44,28 @@
         <!-- HEADERS, AUTHORIZATION AND BODY -->
         <TabControl Grid.Row="1" Grid.Column="1">
             <TabItem Header="Headers" FontSize="15">
-                <Grid RowDefinitions="Auto, *">
-                    <ListBox Grid.Row="0" ItemsSource="{Binding RequestHeaders}">
-                        <ListBox.ItemTemplate>
+                <Grid RowDefinitions="Auto, *" Name="HeaderGrid">
+                    <ItemsControl Grid.Row="0" ItemsSource="{Binding RequestHeaders}">
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="*, Auto, Auto">
                                     <TextBox VerticalAlignment="Center" Margin="5"
-                                               Text="{Binding Converter={StaticResource HeaderKeyConverter}}" />
-                                    <TextBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Width="200"
-                                             Text="{Binding Converter={StaticResource HeaderValueConverter}}" />
-                                    <Button Grid.Column="2" Margin="5" Content="X" />
+                                             Text="{Binding Key}" />
+                                    <TextBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                             Width="200"
+                                             Text="{Binding Value}" />
+                                    <Button Grid.Column="2"
+                                            Margin="5"
+                                            Content="X"
+                                            Command="{Binding ((vm:MainWindowViewModel)DataContext).RemoveHeaderCommand, 
+                                            RelativeSource={ RelativeSource FindAncestor, AncestorType=Window}}"
+                                            CommandParameter="{Binding Id}"/>
                                 </Grid>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                     <Button Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5"
-                            Content="Add Header" />
+                            Content="Add Header" Command="{Binding AddHeaderCommand}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Body" FontSize="15">

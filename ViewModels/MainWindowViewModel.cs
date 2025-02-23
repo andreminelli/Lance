@@ -30,9 +30,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _responseContent;
 
-    [ObservableProperty] private ObservableCollection<RequestHeader>? _requestHeaders =
+    [ObservableProperty] private ObservableCollection<RequestHeader> _requestHeaders =
     [
-        new("Accept", "application/json"),
+        new ("Accept", "application/json"),
         new ("Content-Type", "application/json"),
         new ("Authorization", "Basic"),
     ];
@@ -63,7 +63,19 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     private bool CanMakeRequest() =>
-        Uri.TryCreate(Url, UriKind.Absolute, out Uri _);
+        Uri.TryCreate(Url, UriKind.Absolute, out Uri? _);
+
+    [RelayCommand]
+    private void AddHeader() =>
+        RequestHeaders.Add(new RequestHeader(string.Empty, string.Empty));
+
+    [RelayCommand]
+    private void RemoveHeader(object? parameter)
+    {
+        if (parameter is not Guid id)
+            return;
+        RequestHeaders.Remove(RequestHeaders.First(f => f.Id == id));
+    }
 
     private async Task UpdateResponseData(HttpResponseMessage response, TimeSpan requestDuration)
     {
@@ -98,4 +110,9 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 }
 
-public record RequestHeader(string Key, string Value);
+public class RequestHeader(string key, string value) : ObservableObject
+{
+    public Guid Id { get; } = Guid.NewGuid();
+    public string Key { get; set; } = key;
+    public string Value { get; set; } = value;
+}
