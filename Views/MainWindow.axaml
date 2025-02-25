@@ -59,7 +59,7 @@
                                             Content="X"
                                             Command="{Binding ((vm:MainWindowViewModel)DataContext).RemoveHeaderCommand, 
                                             RelativeSource={ RelativeSource FindAncestor, AncestorType=Window}}"
-                                            CommandParameter="{Binding Id}"/>
+                                            CommandParameter="{Binding Id}" />
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -130,7 +130,7 @@
                     Foreground="Black"
                     Text="{Binding FormattedStatusCode}" />
             </Panel>
-            <TabControl Grid.Row="1" Grid.Column="0">
+            <TabControl Grid.Row="1" Grid.Column="0" SelectedIndex="0">
                 <TabItem Header="Response Content" FontSize="15">
                     <TextBox IsReadOnly="True"
                              Margin="15"
@@ -138,8 +138,28 @@
                              Name="ResponseContentTextBox"
                              Text="{Binding ResponseContent}" />
                 </TabItem>
-                <TabItem Header="Request Headers" FontSize="15"></TabItem>
-                <TabItem Header="Response Headers" FontSize="15"></TabItem>
+                <TabItem Header="Request Headers" FontSize="15">
+                    <Panel>
+                        <DataGrid IsVisible="True" ColumnWidth="*" ItemsSource="{Binding RequestHeaders}" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Key" Binding="{Binding Key}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Value" Binding="{Binding Value}"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Panel>
+                </TabItem>
+                <TabItem Header="Response Headers" FontSize="15">
+                    <Panel>
+                        <DataGrid IsVisible="True" ColumnWidth="*" 
+                                  ItemsSource="{Binding ResponseHeaders}" 
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Key" Binding="{Binding Key}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Value" Binding="{Binding Value}"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Panel>
+                </TabItem>
             </TabControl>
 
         </Grid>

@@ -30,36 +30,68 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _responseContent;
 
-    [ObservableProperty] private ObservableCollection<RequestHeader> _requestHeaders =
+    [ObservableProperty] private ObservableCollection<HttpHeader> _requestHeaders =
     [
         new ("Accept", "application/json"),
-        new ("Content-Type", "application/json"),
-        new ("Authorization", "Basic"),
+        new ("Content-Type", "application/json")
     ];
 
-    [ObservableProperty] private Dictionary<string, string>? _responseHeaders;
+    [ObservableProperty] private ObservableCollection<HttpHeader> _responseHeaders = new();
 
     public HttpMethod[] HttpMethods { get; } =
         [HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Options];
 
+    private void ClearResponseHeaders()
+    {
+        ResponseHeaders.Clear();
+    }
+
     [RelayCommand(CanExecute = nameof(CanMakeRequest))]
     private async Task MakeRequest()
     {
+        ClearResponseHeaders();
         using HttpClient client = new();
         HttpRequestMessage request = new(SelectedMethod, Url);
-        Stopwatch stopwatch = new();
+        
+        if (RequestHeaders is { Count: > 0 })
+        {
+            foreach (HttpHeader header in RequestHeaders)
+            {
+                if (header.Key != "Content-Type")
+                    request.Headers.Add(header.Key, header.Value);
+            }
+        }
 
         if (!string.IsNullOrEmpty(Body))
         {
             request.Content = new StringContent(Body);
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            foreach (HttpHeader header in RequestHeaders)
+            {
+                if (header.Key == "Content-Type")
+                    request.Content.Headers.Add(header.Key, header.Value);
+            }
         }
-
+        
+        Stopwatch stopwatch = new();
         stopwatch.Start();
         HttpResponseMessage response = await client.SendAsync(request);
         stopwatch.Stop();
 
         await UpdateResponseData(response, stopwatch.Elapsed);
+        SetResponseHeaders(response);
+    }
+
+    private void SetResponseHeaders(HttpResponseMessage response)
+    {
+        foreach (KeyValuePair<string, IEnumerable<string>> header in response.Content.Headers)
+        {
+            ResponseHeaders.Add(new (header.Key, string.Join(", ", header.Value)));
+        }
+        
+        foreach (KeyValuePair<string, IEnumerable<string>> header in response.Headers)
+        {
+            ResponseHeaders.Add(new (header.Key, string.Join(", ", header.Value)));
+        }
     }
 
     private bool CanMakeRequest() =>
@@ -67,7 +99,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [RelayCommand]
     private void AddHeader() =>
-        RequestHeaders.Add(new RequestHeader(string.Empty, string.Empty));
+        RequestHeaders.Add(new HttpHeader(string.Empty, string.Empty));
 
     [RelayCommand]
     private void RemoveHeader(object? parameter)
@@ -110,7 +142,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 }
 
-public class RequestHeader(string key, string value) : ObservableObject
+public class HttpHeader(string key, string value) : ObservableObject
 {
     public Guid Id { get; } = Guid.NewGuid();
     public string Key { get; set; } = key;

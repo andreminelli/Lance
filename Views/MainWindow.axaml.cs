@@ -1,8 +1,5 @@
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
-using Avalonia.Interactivity;
 
 namespace Lance.Views;
 
@@ -22,5 +19,3 @@ public partial class MainWindow : Window
             MakeRequestButton.Command.Execute(null);
     }
 }
-
-public record Login(string Username, string Password);
