@@ -85,6 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         request.Content = new StringContent(Body);
+        
         foreach (HttpHeaderViewModel header in InputRequestHeaders)
         {
             if (_contentHeaders.Contains(header.Key))
@@ -109,7 +110,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private void SetFinalHeaders(HttpResponseMessage response, HttpRequestMessage request)
     {
         SetResponseContentHeaders(response);
-
         SetOutputRequestHeaders(request);
 
         foreach (KeyValuePair<string, IEnumerable<string>> header in response.Headers)
@@ -134,7 +134,7 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        foreach (KeyValuePair<string, IEnumerable<string>> header in request.Content?.Headers!)
+        foreach (KeyValuePair<string, IEnumerable<string>> header in request.Content.Headers)
         {
             OutputRequestHeaders.Add(new(header.Key, string.Join(", ", header.Value)));
         }
