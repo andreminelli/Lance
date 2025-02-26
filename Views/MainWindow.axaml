@@ -45,7 +45,7 @@
         <TabControl Grid.Row="1" Grid.Column="1">
             <TabItem Header="Headers" FontSize="15">
                 <Grid RowDefinitions="Auto, *" Name="HeaderGrid">
-                    <ItemsControl Grid.Row="0" ItemsSource="{Binding RequestHeaders}">
+                    <ItemsControl Grid.Row="0" ItemsSource="{Binding InputRequestHeaders}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="*, Auto, Auto">
@@ -57,7 +57,7 @@
                                     <Button Grid.Column="2"
                                             Margin="5"
                                             Content="X"
-                                            Command="{Binding ((vm:MainWindowViewModel)DataContext).RemoveHeaderCommand, 
+                                            Command="{Binding ((vm:MainWindowViewModel)DataContext).RemoveRequestHeaderCommand, 
                                             RelativeSource={ RelativeSource FindAncestor, AncestorType=Window}}"
                                             CommandParameter="{Binding Id}" />
                                 </Grid>
@@ -65,7 +65,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <Button Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="5"
-                            Content="Add Header" Command="{Binding AddHeaderCommand}" />
+                            Content="Add Header" Command="{Binding AddRequestHeaderCommand}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Body" FontSize="15">
@@ -130,7 +130,7 @@
                     Foreground="Black"
                     Text="{Binding FormattedStatusCode}" />
             </Panel>
-            <TabControl Grid.Row="1" Grid.Column="0" SelectedIndex="0">
+            <TabControl Grid.Row="1" Grid.Column="0" SelectedIndex="{Binding SelectedResponseTabControlIndex}">
                 <TabItem Header="Response Content" FontSize="15">
                     <TextBox IsReadOnly="True"
                              Margin="15"
@@ -140,7 +140,7 @@
                 </TabItem>
                 <TabItem Header="Request Headers" FontSize="15">
                     <Panel>
-                        <DataGrid IsVisible="True" ColumnWidth="*" ItemsSource="{Binding RequestHeaders}" IsReadOnly="True">
+                        <DataGrid IsVisible="True" ColumnWidth="*" ItemsSource="{Binding OutputRequestHeaders}" IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Key" Binding="{Binding Key}"></DataGridTextColumn>
                                 <DataGridTextColumn Header="Value" Binding="{Binding Value}"></DataGridTextColumn>

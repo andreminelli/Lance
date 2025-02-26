@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using Lance.Models;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -30,67 +30,122 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _responseContent;
 
-    [ObservableProperty] private ObservableCollection<HttpHeader> _requestHeaders =
+    [ObservableProperty] private ObservableCollection<HttpHeaderModel> _inputRequestHeaders =
     [
-        new ("Accept", "application/json"),
-        new ("Content-Type", "application/json")
+        new("Accept", "application/json"),
+        new("Content-Type", "application/json")
     ];
 
-    [ObservableProperty] private ObservableCollection<HttpHeader> _responseHeaders = new();
+    [ObservableProperty] private ObservableCollection<HttpHeaderModel> _responseHeaders = new();
+
+    [ObservableProperty] private ObservableCollection<HttpHeaderModel> _outputRequestHeaders = new();
+
+    private readonly string[] _contentHeaders =
+    [
+        "Allow", "Content-Disposition", "Content-Encoding", "Content-Language", "Content-Length", "Content-Location",
+        "Content-MD5", "Content-Range", "Content-Type", "Expires", "Last-Modified", "Non-Validated"
+    ];
+
+    // TODO: FOR TESTING TAB SELECTION AFTER THE USER RECEIVES A RESPONSE. IT IS 0 BY DEFAULT.
+    [ObservableProperty] private int _selectedResponseTabControlIndex;
 
     public HttpMethod[] HttpMethods { get; } =
         [HttpMethod.Get, HttpMethod.Post, HttpMethod.Put, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Options];
 
-    private void ClearResponseHeaders()
+    private void ClearFinalHeaders()
     {
         ResponseHeaders.Clear();
+        OutputRequestHeaders.Clear();
     }
 
     [RelayCommand(CanExecute = nameof(CanMakeRequest))]
     private async Task MakeRequest()
     {
-        ClearResponseHeaders();
+        ClearFinalHeaders();
         using HttpClient client = new();
         HttpRequestMessage request = new(SelectedMethod, Url);
-        
-        if (RequestHeaders is { Count: > 0 })
-        {
-            foreach (HttpHeader header in RequestHeaders)
-            {
-                if (header.Key != "Content-Type")
-                    request.Headers.Add(header.Key, header.Value);
-            }
-        }
 
-        if (!string.IsNullOrEmpty(Body))
-        {
-            request.Content = new StringContent(Body);
-            foreach (HttpHeader header in RequestHeaders)
-            {
-                if (header.Key == "Content-Type")
-                    request.Content.Headers.Add(header.Key, header.Value);
-            }
-        }
-        
+        SetRequestHeaders(request);
+        SetBodyWithHeaders(request);
+
         Stopwatch stopwatch = new();
         stopwatch.Start();
         HttpResponseMessage response = await client.SendAsync(request);
         stopwatch.Stop();
 
         await UpdateResponseData(response, stopwatch.Elapsed);
-        SetResponseHeaders(response);
+        SetFinalHeaders(response, request);
+        SelectedResponseTabControlIndex = 0;
     }
 
-    private void SetResponseHeaders(HttpResponseMessage response)
+    private void SetBodyWithHeaders(HttpRequestMessage request)
+    {
+        if (string.IsNullOrEmpty(Body))
+        {
+            return;
+        }
+        
+        request.Content = new StringContent(Body);
+        foreach (HttpHeaderModel header in InputRequestHeaders)
+        {
+            if (_contentHeaders.Contains(header.Key))
+                request.Content.Headers.Add(header.Key, header.Value);
+        }
+    }
+
+    private void SetRequestHeaders(HttpRequestMessage request)
+    {
+        if (InputRequestHeaders is not { Count: > 0 })
+        {
+            return;
+        }
+
+        foreach (HttpHeaderModel header in InputRequestHeaders)
+        {
+            if (!_contentHeaders.Contains(header.Key))
+                request.Headers.Add(header.Key, header.Value);
+        }
+    }
+
+    private void SetFinalHeaders(HttpResponseMessage response, HttpRequestMessage request)
+    {
+        SetResponseContentHeaders(response);
+
+        SetOutputRequestHeaders(request);
+
+        foreach (KeyValuePair<string, IEnumerable<string>> header in response.Headers)
+        {
+            ResponseHeaders.Add(new(header.Key, string.Join(", ", header.Value)));
+        }
+    }
+
+    private void SetOutputRequestHeaders(HttpRequestMessage request)
+    {
+        SetOutputContentRequestHeaders(request);
+        foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
+        {
+            OutputRequestHeaders.Add(new (header.Key, string.Join(", ", header.Value))); 
+        }
+    }
+
+    private void SetOutputContentRequestHeaders(HttpRequestMessage request)
+    {
+        if (request.Content is null or { Headers: null })
+        {
+            return;
+        }
+        
+        foreach (KeyValuePair<string, IEnumerable<string>> header in request.Content?.Headers!)
+        {
+            OutputRequestHeaders.Add(new(header.Key, string.Join(", ", header.Value)));
+        }
+    }
+
+    private void SetResponseContentHeaders(HttpResponseMessage response)
     {
         foreach (KeyValuePair<string, IEnumerable<string>> header in response.Content.Headers)
         {
-            ResponseHeaders.Add(new (header.Key, string.Join(", ", header.Value)));
-        }
-        
-        foreach (KeyValuePair<string, IEnumerable<string>> header in response.Headers)
-        {
-            ResponseHeaders.Add(new (header.Key, string.Join(", ", header.Value)));
+            ResponseHeaders.Add(new(header.Key, string.Join(", ", header.Value)));
         }
     }
 
@@ -98,15 +153,15 @@ public partial class MainWindowViewModel : ViewModelBase
         Uri.TryCreate(Url, UriKind.Absolute, out Uri? _);
 
     [RelayCommand]
-    private void AddHeader() =>
-        RequestHeaders.Add(new HttpHeader(string.Empty, string.Empty));
+    private void AddRequestHeader() =>
+        InputRequestHeaders.Add(new HttpHeaderModel(string.Empty, string.Empty));
 
     [RelayCommand]
-    private void RemoveHeader(object? parameter)
+    private void RemoveRequestHeader(object? parameter)
     {
         if (parameter is not Guid id)
             return;
-        RequestHeaders.Remove(RequestHeaders.First(f => f.Id == id));
+        InputRequestHeaders.Remove(InputRequestHeaders.First(f => f.Id == id));
     }
 
     private async Task UpdateResponseData(HttpResponseMessage response, TimeSpan requestDuration)
@@ -140,11 +195,4 @@ public partial class MainWindowViewModel : ViewModelBase
 
         ResponseContent = await stringResponseContent;
     }
-}
-
-public class HttpHeader(string key, string value) : ObservableObject
-{
-    public Guid Id { get; } = Guid.NewGuid();
-    public string Key { get; set; } = key;
-    public string Value { get; set; } = value;
 }
