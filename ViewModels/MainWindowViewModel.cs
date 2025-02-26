@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using Lance.Models;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -30,15 +29,15 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _responseContent;
 
-    [ObservableProperty] private ObservableCollection<HttpHeaderModel> _inputRequestHeaders =
+    [ObservableProperty] private ObservableCollection<HttpHeaderViewModel> _inputRequestHeaders =
     [
         new("Accept", "application/json"),
         new("Content-Type", "application/json")
     ];
 
-    [ObservableProperty] private ObservableCollection<HttpHeaderModel> _responseHeaders = new();
+    [ObservableProperty] private ObservableCollection<HttpHeaderViewModel> _responseHeaders = new();
 
-    [ObservableProperty] private ObservableCollection<HttpHeaderModel> _outputRequestHeaders = new();
+    [ObservableProperty] private ObservableCollection<HttpHeaderViewModel> _outputRequestHeaders = new();
 
     private readonly string[] _contentHeaders =
     [
@@ -84,9 +83,9 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             return;
         }
-        
+
         request.Content = new StringContent(Body);
-        foreach (HttpHeaderModel header in InputRequestHeaders)
+        foreach (HttpHeaderViewModel header in InputRequestHeaders)
         {
             if (_contentHeaders.Contains(header.Key))
                 request.Content.Headers.Add(header.Key, header.Value);
@@ -100,7 +99,7 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        foreach (HttpHeaderModel header in InputRequestHeaders)
+        foreach (HttpHeaderViewModel header in InputRequestHeaders)
         {
             if (!_contentHeaders.Contains(header.Key))
                 request.Headers.Add(header.Key, header.Value);
@@ -124,7 +123,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SetOutputContentRequestHeaders(request);
         foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
         {
-            OutputRequestHeaders.Add(new (header.Key, string.Join(", ", header.Value))); 
+            OutputRequestHeaders.Add(new(header.Key, string.Join(", ", header.Value)));
         }
     }
 
@@ -134,7 +133,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             return;
         }
-        
+
         foreach (KeyValuePair<string, IEnumerable<string>> header in request.Content?.Headers!)
         {
             OutputRequestHeaders.Add(new(header.Key, string.Join(", ", header.Value)));
@@ -154,13 +153,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [RelayCommand]
     private void AddRequestHeader() =>
-        InputRequestHeaders.Add(new HttpHeaderModel(string.Empty, string.Empty));
+        InputRequestHeaders.Add(new HttpHeaderViewModel(string.Empty, string.Empty));
 
     [RelayCommand]
     private void RemoveRequestHeader(object? parameter)
     {
         if (parameter is not Guid id)
             return;
+
         InputRequestHeaders.Remove(InputRequestHeaders.First(f => f.Id == id));
     }
 
