@@ -85,7 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         request.Content = new StringContent(Body);
-        
+
         foreach (HttpHeaderViewModel header in InputRequestHeaders)
         {
             SetContentHeader(request, header);
@@ -98,7 +98,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             return;
         }
-        
+
         switch (header.Key)
         {
             case "Content-Type":
@@ -107,21 +107,6 @@ public partial class MainWindowViewModel : ViewModelBase
             case "Content-Length":
                 // TODO: This should also account for files. Those should have their sizes measured in bytes, not chars.
                 request.Content.Headers.ContentLength = header.Value.Length;
-                break;
-            case "Content-Location":
-                request.Content.Headers.ContentLocation = new(header.Value);
-                break;
-            case "Content-MD5":
-                break;
-            case "Content-Range":
-                break;
-            case "Allow":
-                break;
-            case "Last-Modified":
-                break;
-            case "Non-Validated":
-                break;
-            case "Content-Disposition":
                 break;
         }
     }
