@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -27,6 +28,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string? _formattedRequestTime;
 
     [ObservableProperty] private string? _formattedStatusCode;
+
+    [ObservableProperty] private HttpStatusCode? _statusCode;
 
     [ObservableProperty] private string? _responseContent;
 
@@ -115,6 +118,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         FormattedRequestTime = $"{Math.Round(requestDuration.TotalMilliseconds)} ms";
 
+        StatusCode = response.StatusCode;
         FormattedStatusCode = $"{(int)response.StatusCode} - {response.ReasonPhrase}";
 
         await SetResponseContent(response, stringResponseContent);
